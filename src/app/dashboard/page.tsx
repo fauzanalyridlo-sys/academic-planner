@@ -79,6 +79,31 @@ const tasks = await prisma.task.findMany({
   ],
 });
 
+const milestones = await prisma.tAMilestone.findMany({
+  where: {
+    userId,
+  },
+  orderBy: [
+    { sortOrder: "asc" },
+    { createdAt: "asc" },
+  ],
+});
+
+const totalMilestones = milestones.length;
+
+const completedMilestones = milestones.filter(
+  (milestone) => milestone.status === "COMPLETED"
+).length;
+
+const taProgress =
+  totalMilestones === 0
+    ? 0
+    : Math.round((completedMilestones / totalMilestones) * 100);
+
+const nextMilestone = milestones.find(
+  (milestone) => milestone.status !== "COMPLETED"
+);
+
 const totalTasks = tasks.length;
 const completedTasks = tasks.filter(
   (task) => task.status === "DONE"
@@ -153,33 +178,35 @@ const upcomingTasks = tasks
           </p>
 
           <nav className="space-y-2">
-            {navigation.map((item) => {
-              const Icon = item.icon;
+  {navigation.map((item) => {
+    const Icon = item.icon;
 
-              return (
-  <Link
-    key={item.label}
-    href={
-      item.label === "Dashboard"
-        ? "/dashboard"
-        : item.label === "Tasks"
-          ? "/dashboard/tasks"
-          : "#"
-    }
-    className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold transition-colors ${
-      item.active
-        ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
-        : item.label === "Tasks"
-          ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
-          : "border-transparent"
-    }`}
-  >
-    <Icon size={19} strokeWidth={2.5} />
-    <span>{item.label}</span>
-  </Link>
-);
-            })}
-          </nav>
+    return (
+      <Link
+        key={item.label}
+        href={
+          item.label === "Dashboard"
+            ? "/dashboard"
+            : item.label === "Tasks"
+              ? "/dashboard/tasks"
+              : item.label === "TA Progress"
+                ? "/dashboard/ta-progress"
+                : "#"
+        }
+        className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold transition-colors ${
+          item.active
+            ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
+            : item.label === "Tasks" || item.label === "TA Progress"
+              ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
+              : "border-transparent"
+        }`}
+      >
+        <Icon size={19} strokeWidth={2.5} />
+        <span>{item.label}</span>
+      </Link>
+    );
+  })}
+</nav>
 
           <div className="mt-auto space-y-2 pt-8">
             <div className="flex items-center gap-3 px-3 py-3 font-bold text-gray-600">
@@ -355,12 +382,22 @@ const upcomingTasks = tasks
               <div className="mb-5 border-[3px] border-black bg-white p-5">
                 <div className="mb-3 flex items-end justify-between">
                   <span className="text-sm font-bold">Overall progress</span>
-                  <span className="text-3xl font-black">25%</span>
+                  <span className="text-3xl font-black">{taProgress}%</span>
                 </div>
 
-                <div className="h-5 border-2 border-black bg-white">
-                  <div className="h-full w-1/4 border-r-2 border-black bg-[#B8F56A]" />
-                </div>
+                <div
+  className="h-5 border-2 border-black bg-white"
+  role="progressbar"
+  aria-label="Progres tugas akhir"
+  aria-valuenow={taProgress}
+  aria-valuemin={0}
+  aria-valuemax={100}
+>
+  <div
+    className="h-full border-r-2 border-black bg-[#B8F56A] transition-all"
+    style={{ width: `${taProgress}%` }}
+  />
+</div>
               </div>
 
               <p className="mb-5 text-sm font-medium leading-relaxed">
@@ -373,8 +410,27 @@ const upcomingTasks = tasks
                   Next milestone
                 </p>
 
-                <p className="mt-2 font-black">Menentukan judul TA</p>
+                <p className="mt-2 font-black">
+  {nextMilestone
+    ? nextMilestone.title
+    : totalMilestones === 0
+      ? "Belum ada milestone"
+      : "Semua milestone selesai!"}
+</p>
               </div>
+              <div className="mt-4 flex items-center justify-between gap-3 text-sm font-bold">
+  <span>Total milestone</span>
+  <span>
+    {completedMilestones}/{totalMilestones} selesai
+  </span>
+</div>
+
+<Link
+  href="/dashboard/ta-progress"
+  className="mt-5 flex items-center justify-center border-2 border-black bg-[#FFE14D] px-4 py-3 font-black shadow-[4px_4px_0px_#000] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_#000]"
+>
+  Kelola TA Progress →
+</Link>
             </article>
           </section>
 
