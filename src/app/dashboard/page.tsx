@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
 import {
   CalendarDays,
   CheckSquare,
@@ -17,36 +18,6 @@ import {
   Target,
 } from "lucide-react";
 export const instant = false;
-const stats = [
-  {
-    label: "Total Tasks",
-    value: "12",
-    detail: "Tugas yang tercatat",
-    color: "bg-[#FFE14D]",
-    icon: CheckSquare,
-  },
-  {
-    label: "Completed",
-    value: "08",
-    detail: "Tugas terselesaikan",
-    color: "bg-[#B8F56A]",
-    icon: Target,
-  },
-  {
-    label: "Upcoming",
-    value: "04",
-    detail: "Perlu perhatian",
-    color: "bg-[#83D8FF]",
-    icon: CalendarDays,
-  },
-  {
-    label: "TA Progress",
-    value: "25%",
-    detail: "Target tugas akhir",
-    color: "bg-[#B9A0FF]",
-    icon: GraduationCap,
-  },
-];
 
 const upcomingTasks = [
   {
@@ -91,6 +62,69 @@ if (!isSessionValid) {
   if (!session?.user) {
     redirect("/login");
   }
+
+  const userId = session.user.id;
+
+if (!userId) {
+  redirect("/login");
+}
+
+const tasks = await prisma.task.findMany({
+  where: {
+    userId,
+  },
+  orderBy: [
+    { dueDate: "asc" },
+    { createdAt: "desc" },
+  ],
+});
+
+const totalTasks = tasks.length;
+const completedTasks = tasks.filter(
+  (task) => task.status === "DONE"
+).length;
+const inProgressTasks = tasks.filter(
+  (task) => task.status === "IN_PROGRESS"
+).length;
+const todoTasks = tasks.filter(
+  (task) => task.status === "TODO"
+).length;
+
+const stats = [
+  {
+    label: "Total Tasks",
+    value: String(totalTasks).padStart(2, "0"),
+    detail: "Seluruh tugas yang tercatat",
+    color: "bg-[#FFE14D]",
+    icon: CheckSquare,
+  },
+  {
+    label: "Completed",
+    value: String(completedTasks).padStart(2, "0"),
+    detail: "Tugas terselesaikan",
+    color: "bg-[#B8F56A]",
+    icon: Target,
+  },
+  {
+    label: "In Progress",
+    value: String(inProgressTasks).padStart(2, "0"),
+    detail: "Tugas sedang dikerjakan",
+    color: "bg-[#83D8FF]",
+    icon: CalendarDays,
+  },
+  {
+    label: "To Do",
+    value: String(todoTasks).padStart(2, "0"),
+    detail: "Tugas belum dimulai",
+    color: "bg-[#B9A0FF]",
+    icon: GraduationCap,
+  },
+];
+
+const upcomingTasks = tasks
+  .filter((task) => task.status !== "DONE")
+  .slice(0, 3);
+
   return (
   <>
     <SessionActivity />
@@ -231,30 +265,73 @@ if (!isSessionValid) {
               </div>
 
               <div className="space-y-4">
-                {upcomingTasks.map((task, index) => (
-                  <div
-                    key={task.title}
-                    className="flex items-start gap-4 border-2 border-black p-4"
-                  >
-                    <div
-                      className={`flex h-9 w-9 shrink-0 items-center justify-center border-2 border-black font-black ${task.color}`}
-                    >
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
+                {upcomingTasks.length > 0 ? (
+  <div className="space-y-4">
+    {upcomingTasks.map((task, index) => {
+      const priorityColor =
+        task.priority === "HIGH"
+          ? "bg-[#FF9B9B]"
+          : task.priority === "MEDIUM"
+            ? "bg-[#FFE14D]"
+            : "bg-[#B8F56A]";
 
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-black">{task.title}</h4>
+      const statusLabel =
+        task.status === "DONE"
+          ? "Selesai"
+          : task.status === "IN_PROGRESS"
+            ? "Sedang dikerjakan"
+            : "Belum dikerjakan";
 
-                      <p className="mt-1 text-xs font-bold uppercase tracking-wide text-gray-500">
-                        {task.category}
-                      </p>
+      const deadline = task.dueDate
+        ? new Intl.DateTimeFormat("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            timeZone: "UTC",
+          }).format(task.dueDate)
+        : "Belum ada deadline";
 
-                      <p className="mt-3 text-xs font-medium text-gray-600">
-                        {task.date}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+      return (
+        <Link
+          key={task.id}
+          href={`/dashboard/tasks/${task.id}/edit`}
+          className="flex items-start gap-4 border-2 border-black p-4 transition-transform hover:-translate-y-0.5"
+        >
+          <div
+            className={`flex h-9 w-9 shrink-0 items-center justify-center border-2 border-black font-black ${priorityColor}`}
+          >
+            {String(index + 1).padStart(2, "0")}
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h4 className="font-black">{task.title}</h4>
+
+            <p className="mt-1 text-xs font-bold uppercase tracking-wide text-gray-500">
+              {statusLabel} · Prioritas {task.priority}
+            </p>
+
+            <p className="mt-3 text-xs font-medium text-gray-600">
+              Deadline: {deadline}
+            </p>
+          </div>
+        </Link>
+      );
+    })}
+  </div>
+) : (
+  <div className="border-2 border-dashed border-black p-6 text-center">
+    <p className="font-black">Belum ada tugas aktif.</p>
+    <p className="mt-2 text-sm text-gray-600">
+      Tambahkan tugas baru agar progres akademikmu bisa dipantau.
+    </p>
+    <Link
+      href="/dashboard/tasks/new"
+      className="mt-4 inline-block border-2 border-black bg-[#FFE14D] px-4 py-2 font-black shadow-[3px_3px_0px_#000]"
+    >
+      + Tambah tugas
+    </Link>
+  </div>
+)}
               </div>
 
               <p className="mt-5 text-xs text-gray-500">
