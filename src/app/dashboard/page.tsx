@@ -123,18 +123,27 @@ if (!isSessionValid) {
               const Icon = item.icon;
 
               return (
-                <div
-                  key={item.label}
-                  className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold ${
-                    item.active
-                      ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
-                      : "border-transparent"
-                  }`}
-                >
-                  <Icon size={19} strokeWidth={2.5} />
-                  <span>{item.label}</span>
-                </div>
-              );
+  <Link
+    key={item.label}
+    href={
+      item.label === "Dashboard"
+        ? "/dashboard"
+        : item.label === "Tasks"
+          ? "/dashboard/tasks"
+          : "#"
+    }
+    className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold transition-colors ${
+      item.active
+        ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
+        : item.label === "Tasks"
+          ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
+          : "border-transparent"
+    }`}
+  >
+    <Icon size={19} strokeWidth={2.5} />
+    <span>{item.label}</span>
+  </Link>
+);
             })}
           </nav>
 
@@ -168,7 +177,7 @@ if (!isSessionValid) {
             </div>
 
             <Link
-              href="/login"
+              href="/dashboard/tasks/new"
               className="inline-flex items-center justify-center gap-2 self-start border-[3px] border-black bg-[#FFE14D] px-5 py-3 font-black shadow-[4px_4px_0px_#000] transition-transform hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_#000] sm:self-auto"
             >
               <Plus size={20} strokeWidth={3} />
