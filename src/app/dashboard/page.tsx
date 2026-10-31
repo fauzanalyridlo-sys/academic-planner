@@ -185,20 +185,22 @@ const upcomingTasks = tasks
       <Link
         key={item.label}
         href={
-          item.label === "Dashboard"
-            ? "/dashboard"
-            : item.label === "Tasks"
-              ? "/dashboard/tasks"
-              : item.label === "TA Progress"
-                ? "/dashboard/ta-progress"
-                : "#"
-        }
+  item.label === "Dashboard"
+    ? "/dashboard"
+    : item.label === "Tasks"
+      ? "/dashboard/tasks"
+      : item.label === "Calendar"
+        ? "/dashboard/calendar"
+        : item.label === "TA Progress"
+          ? "/dashboard/ta-progress"
+          : "#"
+}
         className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold transition-colors ${
           item.active
             ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
-            : item.label === "Tasks" || item.label === "TA Progress"
-              ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
-              : "border-transparent"
+            : ["Tasks", "Calendar", "TA Progress"].includes(item.label)
+  ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
+  : "border-transparent"
         }`}
       >
         <Icon size={19} strokeWidth={2.5} />
