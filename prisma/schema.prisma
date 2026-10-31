@@ -109,19 +109,21 @@ model Task {
 // ========================================
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?  @db.Text
-  startAt     DateTime
-  endAt       DateTime?
-  allDay      Boolean  @default(false)
-  location    String?
+  id              String   @id @default(cuid())
+  title           String
+  description     String?  @db.Text
+  startAt         DateTime
+  endAt           DateTime?
+  allDay          Boolean  @default(false)
+  location        String?
+  category        String   @default("TA")
+  reminderMinutes Int?
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([userId, startAt])
 }

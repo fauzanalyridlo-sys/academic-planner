@@ -16,7 +16,8 @@ import {
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { validateIdleSession } from "@/lib/session";
-import { createMilestone, deleteMilestone } from "./actions";
+import { createMilestone } from "./actions";
+import DeleteMilestoneButton from "@/components/delete-milestone-button";
 
 const statusLabels = {
   NOT_STARTED: "Belum dimulai",
@@ -274,15 +275,10 @@ export default async function TAProgressPage() {
     Edit
   </Link>
 
-  <form action={deleteMilestone.bind(null, milestone.id)}>
-    <button
-      type="submit"
-      aria-label={`Hapus ${milestone.title}`}
-      className="flex h-10 w-10 items-center justify-center border-2 border-black bg-[#FF9292] hover:bg-red-400"
-    >
-      <Trash2 size={18} />
-    </button>
-  </form>
+  <DeleteMilestoneButton
+  id={milestone.id}
+  title={milestone.title}
+/>
 </div>
 </article>
 ))}
