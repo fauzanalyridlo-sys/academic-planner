@@ -4,6 +4,10 @@ import Link from "next/link";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import { createEvent } from "../actions";
 
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import { validateIdleSession } from "@/lib/session";
+
 type NewEventPageProps = {
   searchParams: Promise<{ error?: string }>;
 };
@@ -11,6 +15,16 @@ type NewEventPageProps = {
 export default async function NewEventPage({
   searchParams,
 }: NewEventPageProps) {
+  const isSessionValid = await validateIdleSession();
+
+  if (!isSessionValid) redirect("/login");
+
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
   const { error } = await searchParams;
   return (
     <main className="min-h-screen bg-[#FFF9EB] px-4 py-8 text-black sm:px-8 lg:px-12">
