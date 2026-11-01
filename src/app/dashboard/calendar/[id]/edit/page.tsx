@@ -37,6 +37,10 @@ export default async function EditEventPage({
   params,
   searchParams,
 }: EditEventPageProps) {
+  const isSessionValid = await validateIdleSession();
+
+  if (!isSessionValid) redirect("/login");
+
   const { error } = await searchParams;
   const session = await auth();
   const userId = session?.user?.id;

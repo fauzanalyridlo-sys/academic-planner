@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,17 @@ import { prisma } from "@/lib/prisma";
 const IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000;
 
 export async function POST() {
+  // Auth.js memvalidasi session dan mengelola perpanjangan expires.
+  const authSession = await auth();
+  const userId = authSession?.user?.id;
+
+  if (typeof userId !== "string" || !userId) {
+    return NextResponse.json(
+      { error: "Sesi tidak valid" },
+      { status: 401 },
+    );
+  }
+
   const cookieStore = await cookies();
 
   const sessionToken =
@@ -22,12 +34,13 @@ export async function POST() {
     where: { sessionToken },
     select: {
       sessionToken: true,
+      userId: true,
       expires: true,
       lastActivityAt: true,
     },
   });
 
-  if (!session) {
+  if (!session || session.userId !== userId) {
     return NextResponse.json(
       { error: "Sesi tidak valid" },
       { status: 401 },
@@ -38,7 +51,8 @@ export async function POST() {
 
   const isExpired = session.expires.getTime() <= now.getTime();
   const isIdle =
-    now.getTime() - session.lastActivityAt.getTime() >= IDLE_TIMEOUT_MS;
+    now.getTime() - session.lastActivityAt.getTime() >=
+    IDLE_TIMEOUT_MS;
 
   if (isExpired || isIdle) {
     await prisma.session.deleteMany({
