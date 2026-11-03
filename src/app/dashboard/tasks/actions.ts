@@ -5,23 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { validateIdleSession } from "@/lib/session";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { z } from "zod";
+import { parseTaskForm } from "@/lib/task-validation";
 
-const taskSchema = z.object({
-  title: z.string().trim().min(1, "Judul tugas wajib diisi.").max(150),
-  description: z
-    .string()
-    .trim()
-    .max(5000)
-    .optional()
-    .transform((value) => value || null),
-  status: z.enum(["TODO", "IN_PROGRESS", "DONE"]),
-  priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
-  dueDate: z
-    .string()
-    .optional()
-    .transform((value) => value || null),
-});
 
 async function requireUser(): Promise<{ id: string }> {
   const isSessionValid = await validateIdleSession();
@@ -38,16 +23,6 @@ async function requireUser(): Promise<{ id: string }> {
   }
 
   return { id: userId };
-}
-
-function parseTaskForm(formData: FormData) {
-  return taskSchema.safeParse({
-    title: formData.get("title"),
-    description: formData.get("description") || undefined,
-    status: formData.get("status") || "TODO",
-    priority: formData.get("priority") || "MEDIUM",
-    dueDate: formData.get("dueDate") || undefined,
-  });
 }
 
 export async function createTask(formData: FormData) {
