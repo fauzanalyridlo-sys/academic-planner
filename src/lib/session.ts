@@ -2,8 +2,7 @@ import "server-only";
 
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-
-const IDLE_TIMEOUT_MS = 2 * 60 * 60 * 1000;
+import { isSessionValid } from "@/lib/session-validation";
 
 export async function validateIdleSession() {
   const cookieStore = await cookies();
@@ -29,13 +28,13 @@ export async function validateIdleSession() {
     return false;
   }
 
-  const now = Date.now();
+  const isValid = isSessionValid({
+    expires: session.expires,
+    lastActivityAt: session.lastActivityAt,
+    now: Date.now(),
+  });
 
-  const isExpired = session.expires.getTime() <= now;
-  const isIdle =
-    now - session.lastActivityAt.getTime() >= IDLE_TIMEOUT_MS;
-
-  if (isExpired || isIdle) {
+  if (!isValid) {
     await prisma.session.deleteMany({
       where: { sessionToken },
     });
