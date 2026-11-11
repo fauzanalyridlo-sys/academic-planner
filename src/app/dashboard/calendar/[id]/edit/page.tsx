@@ -2,12 +2,11 @@ export const instant = false;
 
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, CalendarPlus, Trash2 } from "lucide-react";
+import { ArrowLeft, CalendarPlus } from "lucide-react";
 
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { validateIdleSession } from "@/lib/session";
-import ConfirmDeleteButton from "@/components/confirm-delete-button";
 import ConfirmDeleteDialog from "@/components/confirm-delete-dialog";
 
 import { updateEvent, deleteEvent } from "../../actions";

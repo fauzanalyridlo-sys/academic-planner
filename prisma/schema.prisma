@@ -18,18 +18,18 @@ model User {
   emailVerified DateTime?
   image         String?
 
-  accounts      Account[]
-  sessions      Session[]
+  accounts Account[]
+  sessions Session[]
 
-  tasks         Task[]
-  events        Event[]
-  notes         Note[]
-  documents     Document[]
-  milestones    TAMilestone[]
-  checklist     ChecklistItem[]
+  tasks      Task[]
+  events     Event[]
+  notes      Note[]
+  documents  Document[]
+  milestones TAMilestone[]
+  checklist  ChecklistItem[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -38,13 +38,13 @@ model Account {
   provider          String
   providerAccountId String
 
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String? @db.Text
-  session_state     String?
+  refresh_token String? @db.Text
+  access_token  String? @db.Text
+  expires_at    Int?
+  token_type    String?
+  scope         String?
+  id_token      String? @db.Text
+  session_state String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -94,11 +94,11 @@ model Task {
   dueDate     DateTime?
   completedAt DateTime?
 
-  userId      String
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, dueDate])
   @@index([userId, status])
@@ -109,21 +109,21 @@ model Task {
 // ========================================
 
 model Event {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   title           String
-  description     String?  @db.Text
+  description     String?   @db.Text
   startAt         DateTime
   endAt           DateTime?
-  allDay          Boolean  @default(false)
+  allDay          Boolean   @default(false)
   location        String?
-  category        String   @default("TA")
+  category        String    @default("TA")
   reminderMinutes Int?
 
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, startAt])
 }
@@ -133,13 +133,13 @@ model Event {
 // ========================================
 
 model Note {
-  id        String   @id @default(cuid())
-  title     String
-  content   String   @default("") @db.Text
-  isPinned  Boolean  @default(false)
+  id       String  @id @default(cuid())
+  title    String
+  content  String  @default("") @db.Text
+  isPinned Boolean @default(false)
 
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -152,19 +152,23 @@ model Note {
 // ========================================
 
 model Document {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   title       String
   category    String
-  description String?  @db.Text
-  fileName    String?
-  fileUrl     String?
-  isCompleted Boolean  @default(false)
+  description String? @db.Text
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName   String?
+  storageKey String?
+  fileSize   Int?
+  mimeType   String?
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isCompleted Boolean @default(false)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, category])
 }
@@ -188,11 +192,11 @@ model TAMilestone {
   dueDate     DateTime?
   sortOrder   Int             @default(0)
 
-  userId      String
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, sortOrder])
 }
@@ -202,20 +206,20 @@ model TAMilestone {
 // ========================================
 
 model ChecklistItem {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   title       String
-  description String?  @db.Text
+  description String?   @db.Text
   category    String
-  isCompleted Boolean  @default(false)
+  isCompleted Boolean   @default(false)
   completedAt DateTime?
   dueDate     DateTime?
-  notes       String?  @db.Text
+  notes       String?   @db.Text
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId, category])
   @@index([userId, isCompleted])

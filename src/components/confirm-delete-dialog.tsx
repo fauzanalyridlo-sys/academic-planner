@@ -7,12 +7,14 @@ type ConfirmDeleteDialogProps = {
   formAction: (formData: FormData) => void | Promise<void>;
   title?: string;
   description?: string;
+  buttonLabel?: string;
 };
 
 export default function ConfirmDeleteDialog({
   formAction,
   title = "Yakin ingin menghapus?",
   description = "Data yang dihapus tidak dapat dikembalikan.",
+  buttonLabel = "Hapus Jadwal",
 }: ConfirmDeleteDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -24,7 +26,7 @@ export default function ConfirmDeleteDialog({
         className="flex items-center justify-center gap-2 border-2 border-black bg-[#FF9292] px-5 py-3 font-black hover:bg-red-300"
       >
         <Trash2 size={18} />
-        Hapus Jadwal
+        {buttonLabel}
       </button>
 
       {isOpen && (

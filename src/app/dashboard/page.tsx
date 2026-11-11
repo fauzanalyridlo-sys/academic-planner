@@ -1,8 +1,7 @@
-import SessionActivity from "@/components/session-activity";
 import { validateIdleSession } from "@/lib/session";
 import { connection } from "next/server";
 import Link from "next/link";
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import {
@@ -10,44 +9,12 @@ import {
   CheckSquare,
   FileText,
   GraduationCap,
-  LayoutDashboard,
-  LogOut,
   NotebookPen,
   Plus,
-  Settings,
   Target,
 } from "lucide-react";
+
 export const instant = false;
-
-const upcomingTasks = [
-  {
-    title: "Menentukan topik tugas akhir",
-    category: "TUGAS AKHIR",
-    date: "Prioritas tinggi",
-    color: "bg-[#B9A0FF]",
-  },
-  {
-    title: "Persiapan sertifikasi BNSP",
-    category: "SERTIFIKASI",
-    date: "Perlu persiapan",
-    color: "bg-[#83D8FF]",
-  },
-  {
-    title: "Menyusun jadwal bimbingan",
-    category: "AKADEMIK",
-    date: "Belum dijadwalkan",
-    color: "bg-[#B8F56A]",
-  },
-];
-
-const navigation = [
-  { label: "Dashboard", icon: LayoutDashboard, active: true },
-  { label: "Tasks", icon: CheckSquare, active: false },
-  { label: "Calendar", icon: CalendarDays, active: false },
-  { label: "Notes", icon: NotebookPen, active: false },
-  { label: "Documents", icon: FileText, active: false },
-  { label: "TA Progress", icon: GraduationCap, active: false },
-];
 
 export default async function DashboardPage() {
   await connection();
@@ -151,79 +118,8 @@ const upcomingTasks = tasks
   .slice(0, 3);
 
   return (
-  <>
-    <SessionActivity />
+    <main className="min-h-screen p-5 sm:p-8 lg:p-10">
 
-    <main className="min-h-screen bg-[#FFF9EB] text-black">
-      <div className="mx-auto flex min-h-screen max-w-[1600px]">
-        <aside className="hidden w-64 shrink-0 border-r-[3px] border-black bg-white p-6 md:flex md:flex-col">
-          <div className="mb-10">
-            <div className="mb-3 inline-flex border-2 border-black bg-[#FFE14D] p-2">
-              <GraduationCap size={26} strokeWidth={2.5} />
-            </div>
-
-            <h1 className="text-xl font-black tracking-tight">
-              ACADEMIC
-              <br />
-              COMMAND.
-            </h1>
-
-            <p className="mt-2 text-xs font-bold uppercase tracking-widest text-gray-500">
-              Your semester HQ
-            </p>
-          </div>
-
-          <p className="mb-3 text-xs font-black uppercase tracking-widest text-gray-500">
-            Workspace
-          </p>
-
-          <nav className="space-y-2">
-  {navigation.map((item) => {
-    const Icon = item.icon;
-
-    return (
-      <Link
-        key={item.label}
-        href={
-  item.label === "Dashboard"
-    ? "/dashboard"
-    : item.label === "Tasks"
-      ? "/dashboard/tasks"
-      : item.label === "Calendar"
-        ? "/dashboard/calendar"
-        : item.label === "TA Progress"
-          ? "/dashboard/ta-progress"
-          : "#"
-}
-        className={`flex items-center gap-3 border-2 border-black px-3 py-3 font-bold transition-colors ${
-          item.active
-            ? "translate-x-1 bg-[#FFE14D] shadow-[3px_3px_0px_#000]"
-            : ["Tasks", "Calendar", "TA Progress"].includes(item.label)
-  ? "border-transparent hover:border-black hover:bg-[#83D8FF]"
-  : "border-transparent"
-        }`}
-      >
-        <Icon size={19} strokeWidth={2.5} />
-        <span>{item.label}</span>
-      </Link>
-    );
-  })}
-</nav>
-
-          <div className="mt-auto space-y-2 pt-8">
-            <div className="flex items-center gap-3 px-3 py-3 font-bold text-gray-600">
-              <Settings size={19} />
-              Settings
-            </div>
-
-            <div className="flex items-center gap-3 px-3 py-3 font-bold text-gray-600">
-              <LogOut size={19} />
-              Sign out
-            </div>
-          </div>
-        </aside>
-
-        <section className="min-w-0 flex-1 p-5 sm:p-8 lg:p-10">
           <header className="mb-10 flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
             <div>
               <p className="mb-2 text-sm font-bold uppercase tracking-widest text-gray-500">
@@ -478,14 +374,11 @@ const upcomingTasks = tasks
                 <FileText size={30} strokeWidth={2.5} />
               </div>
             </article>
-          </section>
+            </section>
 
           <footer className="mt-10 border-t-2 border-black pt-5 text-xs font-bold text-gray-500">
             RD © 2026 · PLAN SMARTER, FINISH STRONGER.
           </footer>
-        </section>
-            </div>
     </main>
-  </>
   );
 }

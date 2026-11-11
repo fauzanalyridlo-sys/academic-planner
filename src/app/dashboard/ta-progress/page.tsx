@@ -9,7 +9,6 @@ import {
   Circle,
   Clock3,
   Plus,
-  Trash2,
   Target,
 } from "lucide-react";
 
